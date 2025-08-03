@@ -22,6 +22,7 @@ Follow these steps, detailed below, to setup this keepalived configuration:
 ```/etc/keepalived/scripts/``` directory.
 1. Compile ```/etc/keepalived/keepalived.conf``` file according to your configuration
 1. Make all the changes in ```/etc/keepalived/scripts/.env``` required by your setup
+1. Set ```/etc/config/keepalive``` to use our config file
 1. Start keepalived on master
 1. Start keepalived on backup
 1. Test the swicth while doing something that involves networking, especially
@@ -169,6 +170,25 @@ its current state to MASTER, BACKUP or FAULT.
 Fault is when there was some issue (like we lost link on one of the instances).
 The loss of connectivity, in this scenario, will demote the master node to the
 BACKUP state, because of the weight loss.
+
+## UCI configuration
+We need UCI to use our configuration file instead of rebuilding a new one every
+time it starts.
+
+The keepalived process is using ```/tmp/keepalived.conf``` as config file, and
+we need this to be a link to our configuration. UCI takes care of the link, if
+properly configured
+
+#### ```/etc/config/keepalived```
+```
+config globals 'globals'
+	option alt_config_file "/etc/keepalived/keepalived.conf"
+```
+
+This option is not managed by LUCI, hence the advice not to use LUCI to configure
+keepalived. Furthermore we use notification from Sync Group, another thing LUCI
+is not able to manage. Let's avoid configuring with LUCI for now, and just use
+the monitoring page, which is great!
 
 ## Keepalived scripts
 ### ```.env``` file
